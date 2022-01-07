@@ -6,16 +6,18 @@ import json
 import os
 import urllib.parse
 import urllib.request
+from typing import Optional
 
 
 class VpnmApiClient:
     user_id: str
     _token: str
 
-    def __init__(self) -> None:
-        self.email = os.environ["EMAIL"]
-        self.password = os.environ["PASSWORD"]
-        self.api_url = os.environ["API_URL"]
+    def __init__(
+        self,
+        api_url: Optional[str] = os.getenv("VPNM_API_URL"),
+    ) -> None:
+        self.api_url = api_url
 
     @property
     def token(self) -> str:
@@ -25,9 +27,13 @@ class VpnmApiClient:
     def token(self, value: str):
         self._token = value
 
-    def login(self) -> None:
+    def login(
+        self,
+        email: Optional[str] = os.getenv("VPNM_EMAIL"),
+        password: Optional[str] = os.getenv("VPNM_PASSWORD"),
+    ) -> None:
         _data: dict
-        data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
+        data = urllib.parse.urlencode({"email": email, "passwd": password})
         with urllib.request.urlopen(
             f"{os.getenv('API_URL')}/token", data.encode("ascii")
         ) as response:
