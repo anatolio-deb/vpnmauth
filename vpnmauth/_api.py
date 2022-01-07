@@ -35,7 +35,7 @@ class VpnmApiClient:
         _data: dict
         data = urllib.parse.urlencode({"email": email, "passwd": password})
         with urllib.request.urlopen(
-            f"{os.getenv('API_URL')}/token", data.encode("ascii")
+            f"{self.api_url}/token", data.encode("ascii")
         ) as response:
             _data = json.loads(response.read().decode("utf-8")).get("data")
 
