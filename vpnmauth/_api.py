@@ -19,7 +19,6 @@ class VpnmApiClient:
         self._login()
 
     def _login(self) -> None:
-        print("Logging in")
         _data: dict
         data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
         with urllib.request.urlopen(
