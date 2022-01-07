@@ -10,15 +10,22 @@ import urllib.request
 
 class VpnmApiClient:
     user_id: str
-    token: str
+    _token: str
 
     def __init__(self) -> None:
         self.email = os.environ["EMAIL"]
         self.password = os.environ["PASSWORD"]
         self.api_url = os.environ["API_URL"]
-        self._login()
 
-    def _login(self) -> None:
+    @property
+    def token(self) -> str:
+        return self._token
+
+    @token.setter
+    def token(self, value: str):
+        self._token = value
+
+    def login(self) -> None:
         _data: dict
         data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
         with urllib.request.urlopen(
