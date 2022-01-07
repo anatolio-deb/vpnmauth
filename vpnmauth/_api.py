@@ -6,18 +6,14 @@ import json
 import os
 import urllib.parse
 import urllib.request
-from typing import Optional
 
 
 class VpnmApiClient:
-    user_id: str
-    _token: str
-
-    def __init__(
-        self,
-        api_url: Optional[str] = os.getenv("VPNM_API_URL"),
-    ) -> None:
-        self.api_url = api_url
+    api_url = os.getenv("VPNM_API_URL")
+    email = os.getenv("VPNM_EMAIL")
+    password = os.getenv("VPNM_PASSWORD")
+    _user_id = ""
+    _token = ""
 
     @property
     def token(self) -> str:
@@ -27,36 +23,36 @@ class VpnmApiClient:
     def token(self, value: str):
         self._token = value
 
-    def login(
-        self,
-        email: Optional[str] = os.getenv("VPNM_EMAIL"),
-        password: Optional[str] = os.getenv("VPNM_PASSWORD"),
-    ) -> None:
+    def login(self) -> dict:
         _data: dict
-        data = urllib.parse.urlencode({"email": email, "passwd": password})
+        data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
         with urllib.request.urlopen(
             f"{self.api_url}/token", data.encode("ascii")
         ) as response:
             _data = json.loads(response.read().decode("utf-8")).get("data")
 
         if _data:
-            self.user_id, self.token = _data["user_id"], _data["token"]
+            self._user_id, self.token = _data["user_id"], _data["token"]
+        return _data
 
     def logout(self) -> None:
-        self.user_id, self.token = "", ""
+        self._user_id, self.token = "", ""
 
+    @property
     def is_logged_in(self) -> bool:
-        return bool(self.user_id and self.token)
+        return bool(self._user_id and self.token)
 
-    def get_account(self) -> dict:
+    @property
+    def account(self) -> dict:
         params = urllib.parse.urlencode({"access_token": self.token})
 
         with urllib.request.urlopen(
-            f"{self.api_url}/user4/{self.user_id}?{params}"
+            f"{self.api_url}/user4/{self._user_id}?{params}"
         ) as response:
             return json.loads(response.read().decode("utf-8")).get("data")
 
-    def get_nodes(self) -> list:
+    @property
+    def nodes(self) -> list:
         params = urllib.parse.urlencode({"access_token": self.token})
 
         with urllib.request.urlopen(f"{self.api_url}/node4?{params}") as response:
