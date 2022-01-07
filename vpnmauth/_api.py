@@ -28,7 +28,6 @@ class VpnmApiClient:
 
         if _data:
             self.user_id, self.token = _data["user_id"], _data["token"]
-            print("Logged in")
 
     def logout(self) -> None:
         self.user_id, self.token = "", ""
