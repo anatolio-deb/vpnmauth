@@ -52,14 +52,12 @@ class VpnmApiClient:
         params = urllib.parse.urlencode({"access_token": self.token})
 
         with urllib.request.urlopen(
-            f"{os.getenv('API_URL')}/user4/{self.user_id}?{params}"
+            f"{self.api_url}/user4/{self.user_id}?{params}"
         ) as response:
             return json.loads(response.read().decode("utf-8")).get("data")
 
     def get_nodes(self) -> list:
         params = urllib.parse.urlencode({"access_token": self.token})
 
-        with urllib.request.urlopen(
-            f"{os.getenv('API_URL')}/node4?{params}"
-        ) as response:
+        with urllib.request.urlopen(f"{self.api_url}/node4?{params}") as response:
             return json.loads(response.read().decode("utf-8")).get("data").get("node")
