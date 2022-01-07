@@ -19,6 +19,7 @@ class VpnmApiClient:
         self._login()
 
     def _login(self) -> None:
+        print("Logging in")
         _data: dict
         data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
         with urllib.request.urlopen(
@@ -28,6 +29,7 @@ class VpnmApiClient:
 
         if _data:
             self.user_id, self.token = _data["user_id"], _data["token"]
+            print("Successfully logged in.")
 
     def logout(self) -> None:
         self.user_id, self.token = "", ""
@@ -44,6 +46,7 @@ class VpnmApiClient:
             return json.loads(response.read().decode("utf-8")).get("data")
 
     def get_nodes(self) -> list:
+        print("Requesting the node list...")
         params = urllib.parse.urlencode({"access_token": self.token})
 
         with urllib.request.urlopen(
