@@ -12,16 +12,9 @@ class VpnmApiClient:
     api_url = os.getenv("VPNM_API_URL")
     email = os.getenv("VPNM_EMAIL")
     password = os.getenv("VPNM_PASSWORD")
+    token = os.getenv("VPNM_TOKEN")
     _user_id = ""
-    _token = ""
-
-    @property
-    def token(self) -> str:
-        return self._token
-
-    @token.setter
-    def token(self, value: str):
-        self._token = value
+    user_id = ""
 
     def login(self) -> dict:
         _data: dict
@@ -56,4 +49,21 @@ class VpnmApiClient:
         params = urllib.parse.urlencode({"access_token": self.token})
 
         with urllib.request.urlopen(f"{self.api_url}/node4?{params}") as response:
-            return json.loads(response.read().decode("utf-8")).get("data").get("node")
+            response = json.loads(response.read().decode("utf-8")).get("data")
+
+        for node in response["node"]:
+            data = {}
+            server = node["server"].split(";")
+            data["port"] = server[1]
+            data["alterId"] = server[2]
+            data.update(value.split("=") for value in server[-1].split("|"))
+            data.setdefault("server")
+            if server[1] == "443":
+                data["security"] = server[3]
+                data["address"] = data.pop("server")
+            else:
+                data["address"] = server[0]
+                data["network"] = server[3]
+            response["node"][response["node"].index(node)]["server"] = data
+
+        return response
