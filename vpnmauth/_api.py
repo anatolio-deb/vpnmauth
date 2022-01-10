@@ -56,6 +56,7 @@ class VpnmApiClient:
             if server[1] == "443":
                 data["security"] = server[3]
                 data["address"] = data.pop("server")
+                data["network"] = server[4]
             else:
                 data["address"] = server[0]
                 data["network"] = server[3]
