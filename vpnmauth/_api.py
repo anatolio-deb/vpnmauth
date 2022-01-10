@@ -9,12 +9,21 @@ import urllib.request
 
 
 class VpnmApiClient:
-    api_url = os.getenv("VPNM_API_URL")
-    email = os.getenv("VPNM_EMAIL")
-    password = os.getenv("VPNM_PASSWORD")
-    token = os.getenv("VPNM_TOKEN")
+
     _user_id = ""
     user_id = ""
+
+    def __init__(
+        self,
+        api_url=os.getenv("VPNM_API_URL"),
+        email=os.getenv("VPNM_EMAIL"),
+        password=os.getenv("VPNM_PASSWORD"),
+        token=os.getenv("VPNM_TOKEN"),
+    ):
+        self.api_url = api_url
+        self.email = email
+        self.password = password
+        self.token = token
 
     def login(self) -> dict:
         _data: dict
