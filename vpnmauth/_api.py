@@ -2,10 +2,9 @@
 """
 from __future__ import annotations
 
-import json
 import os
-import urllib.parse
-import urllib.request
+
+import requests
 
 
 class VpnmApiClient:
@@ -24,29 +23,23 @@ class VpnmApiClient:
         self.user_id = user_id
 
     def login(self) -> dict:
-        data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
-        with urllib.request.urlopen(
-            f"{self.api_url}/token", data.encode("ascii")
-        ) as response:
-            return json.loads(response.read().decode("utf-8")).get("data")
+        return requests.post(
+            f"{self.api_url}/token", {"email": self.email, "passwd": self.password}
+        ).json()
 
     @property
     def account(self) -> dict:
-        params = urllib.parse.urlencode({"access_token": self.token})
-
-        with urllib.request.urlopen(
-            f"{self.api_url}/user4/{self.user_id}?{params}"
-        ) as response:
-            return json.loads(response.read().decode("utf-8")).get("data")
+        return requests.get(
+            f"{self.api_url}/user4/{self.user_id}", {"access_token": self.token}
+        ).json()
 
     @property
     def nodes(self) -> list:
-        params = urllib.parse.urlencode({"access_token": self.token})
+        response = requests.get(
+            f"{self.api_url}/node4", {"access_token": self.token}
+        ).json()
 
-        with urllib.request.urlopen(f"{self.api_url}/node4?{params}") as response:
-            response = json.loads(response.read().decode("utf-8")).get("data")
-
-        for node in response["node"]:
+        for node in response["data"]["node"]:
             data = {}
             server = node["server"].split(";")
             data["port"] = server[1]
@@ -60,6 +53,8 @@ class VpnmApiClient:
             else:
                 data["address"] = server[0]
                 data["network"] = server[3]
-            response["node"][response["node"].index(node)]["server"] = data
+            response["data"]["node"][response["data"]["node"].index(node)][
+                "server"
+            ] = data
 
         return response
