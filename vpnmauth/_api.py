@@ -9,47 +9,33 @@ import urllib.request
 
 
 class VpnmApiClient:
-
-    _user_id = ""
-    user_id = ""
-
     def __init__(
         self,
         api_url=os.getenv("VPNM_API_URL"),
         email=os.getenv("VPNM_EMAIL"),
         password=os.getenv("VPNM_PASSWORD"),
         token=os.getenv("VPNM_TOKEN"),
+        user_id="",
     ):
         self.api_url = api_url
         self.email = email
         self.password = password
         self.token = token
+        self.user_id = user_id
 
     def login(self) -> dict:
-        _data: dict
         data = urllib.parse.urlencode({"email": self.email, "passwd": self.password})
         with urllib.request.urlopen(
             f"{self.api_url}/token", data.encode("ascii")
         ) as response:
-            _data = json.loads(response.read().decode("utf-8")).get("data")
-
-        if _data:
-            self._user_id, self.token = _data["user_id"], _data["token"]
-        return _data
-
-    def logout(self) -> None:
-        self._user_id, self.token = "", ""
-
-    @property
-    def is_logged_in(self) -> bool:
-        return bool(self._user_id and self.token)
+            return json.loads(response.read().decode("utf-8")).get("data")
 
     @property
     def account(self) -> dict:
         params = urllib.parse.urlencode({"access_token": self.token})
 
         with urllib.request.urlopen(
-            f"{self.api_url}/user4/{self._user_id}?{params}"
+            f"{self.api_url}/user4/{self.user_id}?{params}"
         ) as response:
             return json.loads(response.read().decode("utf-8")).get("data")
 
