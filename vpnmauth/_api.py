@@ -40,21 +40,11 @@ class VpnmApiClient:
         ).json()
 
         for node in response["data"]["node"]:
-            data = {}
             server = node["server"].split(";")
-            data["port"] = server[1]
-            data["alterId"] = server[2]
-            data.update(value.split("=") for value in server[-1].split("|"))
-            data.setdefault("server")
-            if server[1] == "443":
-                data["security"] = server[3]
-                data["address"] = data.pop("server")
-                data["network"] = server[4]
-            else:
-                data["address"] = server[0]
-                data["network"] = server[3]
-            response["data"]["node"][response["data"]["node"].index(node)][
-                "server"
-            ] = data
+            data = dict(value.split("=") for value in server[-1].split("|"))
+            response["data"]["node"][response["data"]["node"].index(node)]["server"] = [
+                server[:-1],
+                data,
+            ]
 
         return response
