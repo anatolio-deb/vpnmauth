@@ -68,7 +68,7 @@ class VpnmApiClient:
 
         for node in response["data"]["node"]:
             server = node["server"].split(";")
-            data = Dict(value.split("=") for value in server[-1].split("|"))
+            data = dict(value.split("=") for value in server[-1].split("|"))
             response["data"]["node"][response["data"]["node"].index(node)]["server"] = [
                 server[:-1],
                 data,
